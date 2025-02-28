@@ -5,6 +5,10 @@ import pandas as pd
 from bs4 import BeautifulSoup
 import os
 import csv
+<<<<<<< HEAD
+=======
+from Plot_AQI import avg_data_2013, avg_data_2014, avg_data_2015, avg_data_2016
+>>>>>>> 41dbcf3393e9a1548155e9781dee2bbf343b4d7f
 
 def met_data(month, year):
     file_path = 'Data/Html_Data/{}/{}.html'.format(year, month)
@@ -31,32 +35,29 @@ def met_data(month, year):
     for times in range(round(rows)):
         newtempD = []
         for i in range(15):
+<<<<<<< HEAD
             if tempD:  # Ensure tempD is not empty
                 newtempD.append(tempD[0])
                 tempD.pop(0)
+=======
+            newtempD.append(tempD[0])
+            tempD.pop(0)
+>>>>>>> 41dbcf3393e9a1548155e9781dee2bbf343b4d7f
         finalD.append(newtempD)
 
     length = len(finalD)
 
-    if length > 1:
-        finalD.pop(length - 1)
-        finalD.pop(0)
-    else:
-        print(f"Not enough data in {file_path} to pop elements.")
-        return []
+    finalD.pop(length - 1)
+    finalD.pop(0)
 
     for a in range(len(finalD)):
-        if len(finalD[a]) > 13:  # Ensure the list has enough elements
-            finalD[a].pop(6)
-            finalD[a].pop(13)
-            finalD[a].pop(12)
-            finalD[a].pop(11)
-            finalD[a].pop(10)
-            finalD[a].pop(9)
-            finalD[a].pop(0)
-        else:
-            print(f"Not enough elements in finalD[{a}] to pop.")
-            return []
+        finalD[a].pop(6)
+        finalD[a].pop(13)
+        finalD[a].pop(12)
+        finalD[a].pop(11)
+        finalD[a].pop(10)
+        finalD[a].pop(9)
+        finalD[a].pop(0)
 
     return finalD
 
@@ -84,8 +85,7 @@ if __name__ == "__main__":
         
         for month in range(1, 13):
             temp = met_data(month, year)
-            if temp:  # Only add non-empty data
-                final_data = final_data + temp
+            final_data = final_data + temp
             
         function_name = 'avg_data_{}'.format(year)
         print(f"Trying to call function: {function_name}")
@@ -95,10 +95,6 @@ if __name__ == "__main__":
             print(f"Function {function_name} not found")
             continue
 
-        # Debugging: Check lengths of final_data and pm
-        print(f"Length of final_data for {year}: {len(final_data)}")
-        print(f"Length of pm for {year}: {len(pm)}")
-
         if len(pm) == 364:
             pm.insert(364, '-')
 
@@ -107,6 +103,7 @@ if __name__ == "__main__":
             print(f"Skipping year {year} due to missing data.")
             continue
 
+<<<<<<< HEAD
         # Ensure pm has enough elements for final_data
         if len(pm) < len(final_data):
             print(f"Warning: pm has fewer elements than final_data for {year}. Padding with average values.")
@@ -116,6 +113,14 @@ if __name__ == "__main__":
         for i in range(len(final_data)):
             final_data[i].insert(8, pm[i])
 
+=======
+        for i in range(len(final_data)):
+            if i < len(pm):  # Ensure we don't exceed the length of pm
+                final_data[i].insert(8, pm[i])
+            else:
+                final_data[i].insert(8, 0)  # Insert a default value if pm is shorter
+
+>>>>>>> 41dbcf3393e9a1548155e9781dee2bbf343b4d7f
         with open('Data/Real-Data/real_' + str(year) + '.csv', 'a') as csvfile:
             wr = csv.writer(csvfile, dialect='excel')
             for row in final_data:
