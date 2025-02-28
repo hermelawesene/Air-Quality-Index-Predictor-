@@ -1,12 +1,13 @@
-import os
+from Plot_AQI import avg_data_2013, avg_data_2014, avg_data_2015, avg_data_2016
+import requests
 import sys
 import pandas as pd
 from bs4 import BeautifulSoup
+import os
 import csv
-from Plot_AQI import avg_data_2013, avg_data_2014, avg_data_2015, avg_data_2016, avg_data_2017, avg_data_2018, avg_data_2019
 
 def met_data(month, year):
-    file_path = 'Datae/Html_Data/{}/{}.html'.format(year, month)
+    file_path = 'Data/Html_Data/{}/{}.html'.format(year, month)
     print(f"Attempting to read file: {os.path.abspath(file_path)}")  # Debugging
     if not os.path.exists(file_path):
         print(f"File not found: {file_path}")
@@ -19,13 +20,7 @@ def met_data(month, year):
     finalD = []
 
     soup = BeautifulSoup(plain_text, "lxml")
-    tables = soup.find_all('table', {'class': 'medias mensuales numspan'})
-    
-    if not tables:
-        print(f"No tables found in {file_path}")
-        return []
-
-    for table in tables:
+    for table in soup.find_all('table', {'class': 'medias mensuales numspan'}):
         for tbody in table:
             for tr in tbody:
                 a = tr.get_text()
@@ -36,7 +31,7 @@ def met_data(month, year):
     for times in range(round(rows)):
         newtempD = []
         for i in range(15):
-            if tempD:  # Check if tempD is not empty
+            if tempD:  # Ensure tempD is not empty
                 newtempD.append(tempD[0])
                 tempD.pop(0)
         finalD.append(newtempD)
@@ -66,7 +61,7 @@ def met_data(month, year):
     return finalD
 
 def data_combine(year, cs):
-    file_path = 'Datae/Real-Data/real_' + str(year) + '.csv'
+    file_path = 'Data/Real-Data/real_' + str(year) + '.csv'
     print(f"Attempting to read file: {os.path.abspath(file_path)}")  # Debugging
     if not os.path.exists(file_path):
         print(f"File not found: {file_path}")
@@ -78,13 +73,12 @@ def data_combine(year, cs):
     return mylist
 
 if __name__ == "__main__":
-    if not os.path.exists("Datae/Real-Data"):
-        os.makedirs("Datae/Real-Data")
+    if not os.path.exists("Data/Real-Data"):
+        os.makedirs("Data/Real-Data")
     
-    # Process data for years 2013 to 2019
-    for year in range(2013, 2020):
+    for year in range(2013, 2017):
         final_data = []
-        with open('Datae/Real-Data/real_' + str(year) + '.csv', 'w') as csvfile:
+        with open('Data/Real-Data/real_' + str(year) + '.csv', 'w') as csvfile:
             wr = csv.writer(csvfile, dialect='excel')
             wr.writerow(['T', 'TM', 'Tm', 'SLP', 'H', 'VV', 'V', 'VM', 'PM 2.5'])
         
@@ -115,13 +109,14 @@ if __name__ == "__main__":
 
         # Ensure pm has enough elements for final_data
         if len(pm) < len(final_data):
-            print(f"Warning: pm has fewer elements than final_data for {year}. Padding with zeros.")
-            pm.extend([0] * (len(final_data) - len(pm)))
+            print(f"Warning: pm has fewer elements than final_data for {year}. Padding with average values.")
+            avg_pm = sum(pm) / len(pm) if pm else 0  # Calculate average PM2.5
+            pm.extend([avg_pm] * (len(final_data) - len(pm)))  # Pad with average PM2.5
 
-        for i in range(len(final_data)-1):
+        for i in range(len(final_data)):
             final_data[i].insert(8, pm[i])
 
-        with open('Datae/Real-Data/real_' + str(year) + '.csv', 'a') as csvfile:
+        with open('Data/Real-Data/real_' + str(year) + '.csv', 'a') as csvfile:
             wr = csv.writer(csvfile, dialect='excel')
             for row in final_data:
                 flag = 0
@@ -131,22 +126,17 @@ if __name__ == "__main__":
                 if flag != 1:
                     wr.writerow(row)
                     
-    # Combine data for all years (2013 to 2019)
     data_2013 = data_combine(2013, 600)
     data_2014 = data_combine(2014, 600)
     data_2015 = data_combine(2015, 600)
     data_2016 = data_combine(2016, 600)
-    data_2017 = data_combine(2017, 600)
-    data_2018 = data_combine(2018, 600)
-    #data_2019 = data_combine(2019, 600)
      
-    total = data_2013 + data_2014 + data_2015 + data_2016 + data_2017 + data_2018 + data_2019
+    total = data_2013 + data_2014 + data_2015 + data_2016
     
-    # Write combined data to a new CSV file
-    with open('Datae/Real-Data/Real_Combine.csv', 'w') as csvfile:
+    with open('Data/Real-Data/Real_Combine.csv', 'w') as csvfile:
         wr = csv.writer(csvfile, dialect='excel')
         wr.writerow(['T', 'TM', 'Tm', 'SLP', 'H', 'VV', 'V', 'VM', 'PM 2.5'])
         wr.writerows(total)
         
-    df = pd.read_csv('Datae/Real-Data/Real_Combine.csv')
+    df = pd.read_csv('Data/Real-Data/Real_Combine.csv')
     print("Data processing completed successfully.")

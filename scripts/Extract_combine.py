@@ -1,4 +1,4 @@
-from Plot_AQI import avg_data_2013,avg_data_2014,avg_data_2015,avg_data_2016
+from Plot_AQI import avg_data_2013,avg_data_2014,avg_data_2015,avg_data_2016, avg_data_2017, avg_data_2018
 import requests
 import sys
 import pandas as pd
@@ -15,7 +15,7 @@ def met_data(month, year):
     finalD = []
 
     soup = BeautifulSoup(plain_text, "lxml")
-    for table in soup.find_all('table', {'class': 'medias mensuales numspan'}):
+    for table in soup.findAll('table', {'class': 'medias mensuales numspan'}):
         for tbody in table:
             for tr in tbody:
                 a = tr.get_text()
@@ -56,7 +56,7 @@ def data_combine(year, cs):
 if __name__ == "__main__":
     if not os.path.exists("Data/Real-Data"):
         os.makedirs("Data/Real-Data")
-    for year in range(2013, 2017):
+    for year in range(2013, 2019):
         final_data = []
         with open('Data/Real-Data/real_' + str(year) + '.csv', 'w') as csvfile:
             wr = csv.writer(csvfile, dialect='excel')
@@ -89,8 +89,10 @@ if __name__ == "__main__":
     data_2014 = data_combine(2014, 600)
     data_2015 = data_combine(2015, 600)
     data_2016 = data_combine(2016, 600)
+    data_2017 = data_combine(2017, 600)
+    data_2018 = data_combine(2018, 600)
      
-    total=data_2013+data_2014+data_2015+data_2016
+    total=data_2013+data_2014+data_2015+data_2016+data_2017+data_2018
     
     with open('Data/Real-Data/Real_Combine.csv', 'w') as csvfile:
         wr = csv.writer(csvfile, dialect='excel')
