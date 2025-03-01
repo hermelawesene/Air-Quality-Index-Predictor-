@@ -1,1 +1,4 @@
-# Air-Quality-Index-Predictor-
+# Air-Quality-Index-Predictor
+TEAM MEMBERS
+HERMELA WESENE - GSR/1047/17
+HIWOT TESHOME - GSR/3420/17
